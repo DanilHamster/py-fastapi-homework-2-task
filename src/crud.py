@@ -4,7 +4,6 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from database.models import MovieModel
-from schemas.movies import MovieListSchema, MovieReadSchema
 
 
 async def get_movies(db: AsyncSession, per_page: int, page: int):

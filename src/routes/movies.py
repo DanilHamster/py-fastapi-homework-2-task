@@ -1,16 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Path, Body
 from sqlalchemy import select, func
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from crud import get_movies, get_or_create, get_movie, delete_movie
 from database import get_db, MovieModel
 from database.models import CountryModel, GenreModel, ActorModel, LanguageModel
-from database.session_sqlite import get_sqlite_db as get_postgresql_db
 from schemas.movies import (
     MovieListSchema,
-    MovieBaseSchema,
     MovieCreateSchema,
     MovieReadSchema,
     MovieUpdateSchema,
@@ -23,7 +20,7 @@ router = APIRouter()
 async def get_all_movies(
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=20),
-    db: AsyncSession = Depends(get_postgresql_db),
+    db: AsyncSession = Depends(get_db),
 ):
     movies = await get_movies(db, per_page, page)
     count_result = await db.execute(
@@ -56,7 +53,7 @@ async def get_all_movies(
 
 @router.post("/movies/", response_model=MovieReadSchema, status_code=201)
 async def create_movie(
-    movie: MovieCreateSchema, db: AsyncSession = Depends(get_postgresql_db)
+    movie: MovieCreateSchema, db: AsyncSession = Depends(get_db)
 ):
     existing = await db.execute(
         select(MovieModel).where(
@@ -116,7 +113,7 @@ async def create_movie(
 
 @router.get("/movies/{movie_id}/", response_model=MovieReadSchema)
 async def read_movie(
-    movie_id: int, db: AsyncSession = Depends(get_postgresql_db)
+    movie_id: int, db: AsyncSession = Depends(get_db)
 ):
     movie = await get_movie(db, movie_id)
     if not movie:
@@ -128,7 +125,7 @@ async def read_movie(
 
 @router.delete("/movies/{movie_id}/", status_code=204)
 async def remove_film(
-    movie_id: int, db: AsyncSession = Depends(get_postgresql_db)
+    movie_id: int, db: AsyncSession = Depends(get_db)
 ):
     deleted_movie = await delete_movie(db, movie_id)
     if not deleted_movie:
@@ -142,7 +139,7 @@ async def remove_film(
 async def update_movie(
     movie_id: int = Path(..., ge=1),
     update_data: MovieUpdateSchema = Body(),
-    db: AsyncSession = Depends(get_postgresql_db),
+    db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
         select(MovieModel).where(MovieModel.id == movie_id)
