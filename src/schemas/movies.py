@@ -6,7 +6,7 @@ from typing import List, Optional
 
 
 class MovieBaseSchema(BaseModel):
-    name: str
+    name: str = Field(max_length=255)
     date: date
     score: float
     overview: str
@@ -41,7 +41,7 @@ class CountryBaseSchema(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class GenerBaseSchema(BaseModel):
+class GenreBaseSchema(BaseModel):
     id: int
     name: str
 
@@ -85,7 +85,7 @@ class MovieReadSchema(MovieShortSchema):
     budget: float
     revenue: float
     country: CountryBaseSchema
-    genres: List[GenerBaseSchema]
+    genres: List[GenreBaseSchema]
     actors: List[ActorBaseSchema]
     languages: List[LanguageBaseSchema]
 
@@ -98,7 +98,3 @@ class MovieUpdateSchema(BaseModel):
     status: Optional[StatusEnum] = None
     budget: Optional[float] = None
     revenue: Optional[float] = None
-    country: Optional[str] = None
-    genres: Optional[list[str]] = None
-    actors: Optional[list[str]] = None
-    languages: Optional[list[str]] = None
